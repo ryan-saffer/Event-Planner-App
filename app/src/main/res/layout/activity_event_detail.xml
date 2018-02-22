@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.ryansaffer.eventplanner.EventDetailActivity">
+
+    <include
+        layout="@layout/include_user"
+        android:id="@+id/post_details_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"/>
+
+    <include
+        layout="@layout/include_post_text"
+        android:id="@+id/post_details_details"
+        android:layout_below="@id/post_details_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"/>
+
+    <RadioGroup
+        android:id="@+id/response_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:layout_below="@id/post_details_details">
+
+        <RadioButton
+            android:id="@+id/radio_button_attending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/radio_btn_attending" />
+
+        <RadioButton
+            android:id="@+id/radio_button_rejected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/radio_btn_rejected" />
+
+    </RadioGroup>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabs_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/response_radio_group">
+
+    </android.support.design.widget.TabLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/container_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabs_details"/>
+
+</RelativeLayout>

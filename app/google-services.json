@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "386491500603",
+    "firebase_url": "https://eventplanner-c18a9.firebaseio.com",
+    "project_id": "eventplanner-c18a9",
+    "storage_bucket": "eventplanner-c18a9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:386491500603:android:5c62c574c1925093",
+        "android_client_info": {
+          "package_name": "com.example.ryansaffer.eventplanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "386491500603-8d8jq0fp4r923dvap73vcag71amhsnrc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ryansaffer.eventplanner",
+            "certificate_hash": "c4b4ad648cbf0acb4acdc41615f66b2508776e35"
+          }
+        },
+        {
+          "client_id": "386491500603-suol8cc785133nr0lscqn4vpnouq60cm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyY_c-SdVAMeWTypFbNST8F2D1tqE3bh8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "386491500603-suol8cc785133nr0lscqn4vpnouq60cm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
