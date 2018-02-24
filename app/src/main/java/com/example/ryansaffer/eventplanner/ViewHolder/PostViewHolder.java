@@ -2,7 +2,6 @@ package com.example.ryansaffer.eventplanner.ViewHolder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.ryansaffer.eventplanner.R;
@@ -28,7 +27,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public PostViewHolder(View itemView) {
         super(itemView);
 
-        authorView = itemView.findViewById(R.id.post_author_email);
+        authorView = itemView.findViewById(R.id.include_author_email);
         titleView = itemView.findViewById(R.id.post_title);
         detailView = itemView.findViewById(R.id.post_details);
         dateTimeView = itemView.findViewById(R.id.post_date_time);

@@ -93,7 +93,7 @@ public class EventDetailActivity extends AppCompatActivity {
         mEventReference = FirebaseDatabase.getInstance().getReference().child("posts").child(mEventKey);
 
         // Initialize Views
-        mAuthorView = findViewById(R.id.post_author_email);
+        mAuthorView = findViewById(R.id.include_author_email);
         mTitleView = findViewById(R.id.post_title);
         mBodyView = findViewById(R.id.post_details);
         mDateTimeView = findViewById(R.id.post_date_time);

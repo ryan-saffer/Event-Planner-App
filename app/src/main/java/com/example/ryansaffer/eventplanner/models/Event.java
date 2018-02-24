@@ -1,6 +1,9 @@
 package com.example.ryansaffer.eventplanner.models;
 
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ public class Event {
     public int year;
     public int hour;
     public int minute;
+    public ArrayList<User> invitedUsers;
 
     public Event() {}
 
@@ -37,6 +41,9 @@ public class Event {
         this.year = year;
         this.hour = hour;
         this.minute = minute;
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference.child("users");
     }
 
     @Exclude
@@ -51,6 +58,7 @@ public class Event {
         result.put("year", year);
         result.put("hour", hour);
         result.put("minute", minute);
+        result.put("invited-users", invitedUsers);
 
         return result;
     }
