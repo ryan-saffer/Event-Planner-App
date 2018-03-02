@@ -1,9 +1,14 @@
 package com.example.ryansaffer.eventplanner.models;
 
+import android.util.Log;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -18,6 +23,8 @@ import java.util.Map;
 
 public class Event {
 
+    private static final String TAG = "Event";
+
     public String uid;
     public String author;
     public String title;
@@ -27,23 +34,21 @@ public class Event {
     public int year;
     public int hour;
     public int minute;
-    public ArrayList<User> invitedUsers;
+    public HashMap<String, Boolean> invitedUsers;
 
     public Event() {}
 
-    public Event(String uid, String author, String title, String details, int day, int month, int year, int hour, int minute) {
+    public Event(String uid, String author, String title, String details, HashMap<String, Boolean> invitedUsers, int day, int month, int year, int hour, int minute) {
         this.uid = uid;
         this.author = author;
         this.title = title;
         this.details = details;
+        this.invitedUsers = invitedUsers;
         this.day = day;
         this.month = month;
         this.year = year;
         this.hour = hour;
         this.minute = minute;
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference.child("users");
     }
 
     @Exclude

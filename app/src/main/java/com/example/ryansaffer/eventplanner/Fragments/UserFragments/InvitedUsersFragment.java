@@ -10,6 +10,6 @@ import com.google.firebase.database.Query;
 public class InvitedUsersFragment extends UserListFragment {
     @Override
     public Query getQuery(DatabaseReference reference) {
-        return reference.child("users-invited");
+        return reference.child("users");
     }
 }

@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class CreateEventActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
@@ -45,7 +46,8 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
     Button mSelectDateTimeBtn;
     FloatingActionButton mSubmitButton;
 
-    private Calendar calendar;
+    private static String title;
+    private static String body;
 
     private int year;
     private int month;
@@ -87,16 +89,16 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         this.hour = hourOfDay;
         this.minute = minute;
 
-        calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.set(this.year, this.month, this.day, this.hour, this.minute);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a", Locale.ENGLISH);
 
         ((TextView) findViewById(R.id.selected_date_tv)).setText(dateFormat.format(calendar.getTime()));
     }
 
     public void submitEvent(View v) {
-        final String title = mTitleField.getText().toString();
-        final String body = mDetailField.getText().toString();
+        title = mTitleField.getText().toString();
+        body = mDetailField.getText().toString();
         final String dateTime = mDateTimeField.getText().toString();
 
         // Title required
@@ -121,6 +123,30 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         setEditingEnabled(false);
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
+        // get all users uids, to be invited to the event
+        final HashMap<String, Boolean> invitedUsers = new HashMap<>();
+        FirebaseDatabase.getInstance().getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // get the UID of each user in the system, and add it to the Map of invited users
+                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
+                if (map != null) {
+                    for (String uid : map.keySet()) {
+                        invitedUsers.put(uid, false);
+                    }
+                }
+                // now create the event
+                createEvent(invitedUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "getAllUsersUIDs:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
+    public void createEvent(final HashMap<String, Boolean> invitedUsers) {
         final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -130,11 +156,11 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
                 // if user is null error out
                 if (user == null) {
-                    Log.e(TAG,"User " + userId + " is unexpectedly null");
+                    Log.e(TAG, "User " + userId + " is unexpectedly null");
                     Toast.makeText(CreateEventActivity.this, CreateEventActivity.this.getString(R.string.err_user_null), Toast.LENGTH_SHORT).show();
                 } else {
                     // write new event
-                    writeNewEvent(userId, user.username, title, body);
+                    writeNewEvent(userId, user.username, title, body, invitedUsers);
                 }
 
                 // Finish activity, back to the stream
@@ -144,18 +170,16 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "getUser:onCancelled",databaseError.toException());
+                Log.w(TAG, "getUser:onCancelled", databaseError.toException());
                 setEditingEnabled(true);
             }
         });
-
-
     }
 
-    public void writeNewEvent(String userId, String username, String title, String body) {
+    public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, Boolean> invitedUsers) {
         // create new event at "events/@post-id
         String key = mDatabase.child("posts").push().getKey();
-        Event event = new Event(userId,username,title,body,this.day,this.month,this.year,this.hour,this.minute);
+        Event event = new Event(userId,username,title,body,invitedUsers,this.day,this.month,this.year,this.hour,this.minute);
         Map<String, Object> eventValues = event.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
