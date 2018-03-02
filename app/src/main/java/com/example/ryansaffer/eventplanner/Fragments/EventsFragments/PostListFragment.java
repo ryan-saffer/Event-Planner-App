@@ -94,7 +94,7 @@ public abstract class PostListFragment extends Fragment {
 
                 // TODO: Bind Event to ViewHolder, setting OnClickListener for all response buttons
 
-                holder.bindToEvent(model);
+                holder.bindToEvent(eventKey, model);
             }
 
             @Override

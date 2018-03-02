@@ -34,11 +34,11 @@ public class Event {
     public int year;
     public int hour;
     public int minute;
-    public HashMap<String, Boolean> invitedUsers;
+    public HashMap<String, String> invitedUsers;
 
     public Event() {}
 
-    public Event(String uid, String author, String title, String details, HashMap<String, Boolean> invitedUsers, int day, int month, int year, int hour, int minute) {
+    public Event(String uid, String author, String title, String details, HashMap<String, String> invitedUsers, int day, int month, int year, int hour, int minute) {
         this.uid = uid;
         this.author = author;
         this.title = title;

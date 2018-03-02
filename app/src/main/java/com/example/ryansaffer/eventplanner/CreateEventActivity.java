@@ -124,7 +124,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
         // get all users uids, to be invited to the event
-        final HashMap<String, Boolean> invitedUsers = new HashMap<>();
+        final HashMap<String, String> invitedUsers = new HashMap<>();
         FirebaseDatabase.getInstance().getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -132,7 +132,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
                 Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
                 if (map != null) {
                     for (String uid : map.keySet()) {
-                        invitedUsers.put(uid, false);
+                        invitedUsers.put(uid, "pending");
                     }
                 }
                 // now create the event
@@ -146,7 +146,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         });
     }
 
-    public void createEvent(final HashMap<String, Boolean> invitedUsers) {
+    public void createEvent(final HashMap<String, String> invitedUsers) {
         final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -176,7 +176,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         });
     }
 
-    public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, Boolean> invitedUsers) {
+    public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, String> invitedUsers) {
         // create new event at "events/@post-id
         String key = mDatabase.child("posts").push().getKey();
         Event event = new Event(userId,username,title,body,invitedUsers,this.day,this.month,this.year,this.hour,this.minute);
