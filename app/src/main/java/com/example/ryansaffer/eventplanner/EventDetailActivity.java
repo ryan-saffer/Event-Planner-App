@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.UpcomingEventsFragment;
+import com.example.ryansaffer.eventplanner.Fragments.UserFragments.InvitedUsersFragment;
 import com.example.ryansaffer.eventplanner.models.Event;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class EventDetailActivity extends AppCompatActivity {
@@ -58,8 +60,8 @@ public class EventDetailActivity extends AppCompatActivity {
         // initialise the fragments
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
-                    new UpcomingEventsFragment(),
-                    new UpcomingEventsFragment(),
+                    InvitedUsersFragment.newInstance(mEventKey),
+                    new InvitedUsersFragment(),
                     new UpcomingEventsFragment()
             };
             private final String[] mFragmentNames = new String[] {

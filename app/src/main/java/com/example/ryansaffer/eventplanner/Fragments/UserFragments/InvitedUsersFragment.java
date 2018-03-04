@@ -1,13 +1,32 @@
 package com.example.ryansaffer.eventplanner.Fragments.UserFragments;
 
+import android.os.Bundle;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 /**
  * Created by andre on 24/02/2018.
  */
 
 public class InvitedUsersFragment extends UserListFragment {
+
+    private static final String TAG = "InvitedUsersFragment";
+
+    public static InvitedUsersFragment newInstance(String eventid) {
+        InvitedUsersFragment fragment = new InvitedUsersFragment();
+        Bundle args = new Bundle();
+        args.putString("eventid", eventid);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public Query getQuery(DatabaseReference reference) {
         return reference.child("users");

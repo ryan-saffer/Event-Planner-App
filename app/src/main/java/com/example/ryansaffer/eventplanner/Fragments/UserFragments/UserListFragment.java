@@ -1,6 +1,6 @@
 package com.example.ryansaffer.eventplanner.Fragments.UserFragments;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +19,8 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+
+import java.util.ArrayList;
 
 /**
  * Created by ryansaffer on 21/2/18.
@@ -75,6 +77,23 @@ public abstract class UserListFragment extends Fragment {
                 return new UserViewHolder(inflater.inflate(R.layout.include_user, parent, false));
             }
         };
+        mRecycler.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mAdapter != null) {
+            mAdapter.startListening();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAdapter != null) {
+            mAdapter.stopListening();
+        }
     }
 
     public abstract Query getQuery(DatabaseReference reference);
