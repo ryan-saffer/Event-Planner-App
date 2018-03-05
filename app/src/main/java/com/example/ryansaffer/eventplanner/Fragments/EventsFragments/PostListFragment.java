@@ -90,10 +90,6 @@ public abstract class PostListFragment extends Fragment {
                     }
                 });
 
-                // TODO: Edit UI to show user which attending option they have selected
-
-                // TODO: Bind Event to ViewHolder, setting OnClickListener for all response buttons
-
                 holder.bindToEvent(eventKey, model);
             }
 
@@ -105,8 +101,6 @@ public abstract class PostListFragment extends Fragment {
         };
         mRecycler.setAdapter(mAdapter);
     }
-
-    // TODO: Create method onResponseButtonClicked
 
     @Override
     public void onStart() {

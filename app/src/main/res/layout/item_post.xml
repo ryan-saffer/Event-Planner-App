@@ -42,6 +42,17 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp" />
 
+        <TextView
+            android:id="@+id/tv_post_user_response"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/post_text_layout"
+            android:layout_marginTop="5dp"
+            android:text="RESPONSE"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="18sp" />
+
         <include
             android:id="@+id/post_responses_layout"
             layout="@layout/include_post_responses_count"
@@ -52,7 +63,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/post_text_layout"/>
+            android:layout_below="@+id/tv_post_user_response"/>
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

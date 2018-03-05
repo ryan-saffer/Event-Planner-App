@@ -1,5 +1,6 @@
 package com.example.ryansaffer.eventplanner.ViewHolder;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -7,8 +8,10 @@ import android.widget.TextView;
 
 import com.example.ryansaffer.eventplanner.R;
 import com.example.ryansaffer.eventplanner.models.Event;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -24,6 +27,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     public static final String TAG = "PostViewHolder";
 
+    private Context context;
+
+    public enum Response {
+        ATTENDING,
+        NOT_ATTENDING,
+        PENDING
+    }
+
     public TextView authorView;
     public TextView titleView;
     public TextView detailView;
@@ -31,9 +42,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public TextView attendingCountView;
     public TextView rejectedCountView;
     public TextView awaitingResponseCountView;
+    public TextView responseTextView;
 
     public PostViewHolder(View itemView) {
         super(itemView);
+
+        context = itemView.getContext();
 
         authorView = itemView.findViewById(R.id.include_author_email);
         titleView = itemView.findViewById(R.id.post_title);
@@ -42,10 +56,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         attendingCountView = itemView.findViewById(R.id.post_accepted_num);
         rejectedCountView = itemView.findViewById(R.id.post_rejected_num);
         awaitingResponseCountView = itemView.findViewById(R.id.post_awaiting_response_num);
+        responseTextView = itemView.findViewById(R.id.tv_post_user_response);
     }
 
     public void bindToEvent(String eventKey, final Event event) {
 
+        // count the number of accepted/rejected/pending
         FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -53,7 +69,19 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 long notAttendingCount = dataSnapshot.child("rejected-users").getChildrenCount();
                 long pendingCount = dataSnapshot.child("pending-users").getChildrenCount();
 
-                setText((int) attendingCount, (int) notAttendingCount, (int) pendingCount, event);
+                // find out the logged in users response
+                Response response = Response.PENDING;
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                if (dataSnapshot.child("accepted-users").child(uid).exists())
+                {
+                    response = Response.ATTENDING;
+                }
+                else if (dataSnapshot.child("rejected-users").child(uid).exists())
+                {
+                    response = Response.NOT_ATTENDING;
+                }
+
+                setText((int) attendingCount, (int) notAttendingCount, (int) pendingCount, response, event);
             }
 
             @Override
@@ -63,7 +91,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    private void setText(int attendingCount, int notAttendingCount, int pendingCount, Event event) {
+    private void setText(int attendingCount, int notAttendingCount, int pendingCount, Response response, Event event) {
 
         SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a");
         Calendar cal = Calendar.getInstance();
@@ -76,5 +104,20 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         attendingCountView.setText(String.valueOf(attendingCount));
         rejectedCountView.setText(String.valueOf(notAttendingCount));
         awaitingResponseCountView.setText(String.valueOf(pendingCount));
+
+        // set the user response
+        switch(response) {
+            case ATTENDING:
+                responseTextView.setText(context.getResources().getString(R.string.user_response_attending));
+                break;
+            case NOT_ATTENDING:
+                responseTextView.setText(context.getResources().getString(R.string.user_response_rejected));
+                break;
+            case PENDING:
+                responseTextView.setText(context.getResources().getString(R.string.user_response_pending));
+                break;
+            default:
+                break;
+        }
     }
 }

@@ -20,8 +20,9 @@
         android:layout_height="100dp"
         android:layout_below="@id/et_event_name"
         android:ems="10"
-        android:inputType="textMultiLine"
+        android:gravity="bottom"
         android:hint="@string/hint_event_description"
+        android:inputType="textMultiLine"
         android:textAppearance="@android:style/TextAppearance.Material.Small" />
 
     <TextView
