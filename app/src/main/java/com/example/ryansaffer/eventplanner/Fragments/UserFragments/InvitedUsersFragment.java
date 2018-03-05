@@ -31,6 +31,5 @@ public class InvitedUsersFragment extends UserListFragment {
     public Query getQuery(DatabaseReference reference) {
         String eventKey = getArguments().getString("eventid");
         return reference.child("events").child(eventKey).child("pending-users");
-
     }
 }

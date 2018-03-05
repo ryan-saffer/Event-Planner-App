@@ -13,6 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.UpcomingEventsFragment;
+import com.example.ryansaffer.eventplanner.Fragments.UserFragments.AcceptedUsersFragment;
+import com.example.ryansaffer.eventplanner.Fragments.UserFragments.DeclinedUsersFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.InvitedUsersFragment;
 import com.example.ryansaffer.eventplanner.models.Event;
 import com.google.firebase.database.DataSnapshot;
@@ -60,9 +62,9 @@ public class EventDetailActivity extends AppCompatActivity {
         // initialise the fragments
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
-                    InvitedUsersFragment.newInstance(mEventKey),
-                    new UpcomingEventsFragment(),
-                    new UpcomingEventsFragment()
+                    AcceptedUsersFragment.newInstance(mEventKey),
+                    DeclinedUsersFragment.newInstance(mEventKey),
+                    InvitedUsersFragment.newInstance(mEventKey)
             };
             private final String[] mFragmentNames = new String[] {
                     "Attending",
