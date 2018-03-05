@@ -49,7 +49,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                long attendingCount = dataSnapshot.child("attending-users").getChildrenCount();
+                long attendingCount = dataSnapshot.child("accepted-users").getChildrenCount();
                 long notAttendingCount = dataSnapshot.child("rejected-users").getChildrenCount();
                 long pendingCount = dataSnapshot.child("pending-users").getChildrenCount();
 

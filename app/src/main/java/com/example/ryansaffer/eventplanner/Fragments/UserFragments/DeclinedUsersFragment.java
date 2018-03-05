@@ -22,6 +22,6 @@ public class DeclinedUsersFragment extends UserListFragment {
     @Override
     public Query getQuery(DatabaseReference reference) {
         String eventKey = getArguments().getString("eventid");
-        return reference.child("events").child(eventKey).child("declined-users");
+        return reference.child("events").child(eventKey).child("rejected-users");
     }
 }
