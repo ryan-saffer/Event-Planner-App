@@ -123,30 +123,6 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         setEditingEnabled(false);
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
-        // get all users uids, to be invited to the event
-        final HashMap<String, String> invitedUsers = new HashMap<>();
-        FirebaseDatabase.getInstance().getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // get the UID of each user in the system, and add it to the Map of invited users
-                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
-                if (map != null) {
-                    for (String uid : map.keySet()) {
-                        invitedUsers.put(uid, "pending");
-                    }
-                }
-                // now create the event
-                createEvent(invitedUsers);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "getAllUsersUIDs:onCancelled", databaseError.toException());
-            }
-        });
-    }
-
-    public void createEvent(final HashMap<String, String> invitedUsers) {
         final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -160,7 +136,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
                     Toast.makeText(CreateEventActivity.this, CreateEventActivity.this.getString(R.string.err_user_null), Toast.LENGTH_SHORT).show();
                 } else {
                     // write new event
-                    writeNewEvent(userId, user.username, title, body, invitedUsers);
+                    writeNewEvent(userId, user.username, title, body);
                 }
 
                 // Finish activity, back to the stream
@@ -176,39 +152,40 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         });
     }
 
-    public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, String> invitedUsers) {
+    public void writeNewEvent(String userId, String username, String title, String body) {
         // create new event at "events/@post-id
         String key = mDatabase.child("events").push().getKey();
-        Event event = new Event(userId,username,title,body,invitedUsers,this.day,this.month,this.year,this.hour,this.minute);
+        Event event = new Event(userId,username,title,body,this.day,this.month,this.year,this.hour,this.minute);
         Map<String, Object> eventValues = event.toMap();
-
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/events/" + key, eventValues);
-
         mDatabase.updateChildren(childUpdates);
 
+        // now write to "responses -> eventKey" the uid and status of all users
         writeUserReponses(key);
-
-
     }
 
     // Using the eventKey, add all users under /responses/eventKey
+    // and set status as 'pending'
     public void writeUserReponses(final String eventKey) {
         mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                // a map of all users
                 Map<String, Object> allUsersMap = new HashMap<>();
-
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     User user = snapshot.getValue(User.class);
-
-                    Map<String, Object> singleUserMap = new HashMap<>();
-                    singleUserMap.put("status", "pending");
-                    singleUserMap.put("username", user.username);
-                    allUsersMap.put(snapshot.getKey(), singleUserMap);
+                    // a map of just the users name, and response status
+                    if (user != null) {
+                        Map<String, Object> singleUserMap = new HashMap<>();
+                        singleUserMap.put("status", "pending");
+                        singleUserMap.put("username", user.username);
+                        allUsersMap.put(snapshot.getKey(), singleUserMap);
+                    }
+                    else {
+                        Log.e(TAG, "User " + snapshot.getKey() + " was unexpectedly null");
+                    }
                 }
-
                 Map<String, Object> finalMap = new HashMap<>();
                 finalMap.put("/responses/" + eventKey, allUsersMap);
                 mDatabase.updateChildren(finalMap);

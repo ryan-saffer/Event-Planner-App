@@ -46,28 +46,30 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     public void bindToEvent(String eventKey, final Event event) {
 
-        FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).child("invited-users").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference()
+                .child("responses")
+                .child(eventKey)
+                .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int attendingCount = 0;
                 int notAttendingCount = 0;
                 int pendingCount = 0;
-                Map<String, String> map = (Map<String, String>) dataSnapshot.getValue();
-                if (map != null) {
-                    for (String response : map.values()) {
-                        switch (response) {
-                            case "attending":
-                                attendingCount ++;
-                                break;
-                            case "rejected":
-                                notAttendingCount ++;
-                                break;
-                            case "pending":
-                                pendingCount ++;
-                                break;
-                            default:
-                                break;
-                        }
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String response = snapshot.child("status").getValue().toString();
+                    switch (response) {
+                        case "accepted":
+                            attendingCount ++;
+                            break;
+                        case "rejected":
+                            notAttendingCount ++;
+                            break;
+                        case "pending":
+                            pendingCount ++;
+                            break;
+                        default:
+                            break;
                     }
                 }
                 setText(attendingCount, notAttendingCount, pendingCount, event);

@@ -34,16 +34,14 @@ public class Event {
     public int year;
     public int hour;
     public int minute;
-    public HashMap<String, String> invitedUsers;
 
     public Event() {}
 
-    public Event(String uid, String author, String title, String details, HashMap<String, String> invitedUsers, int day, int month, int year, int hour, int minute) {
+    public Event(String uid, String author, String title, String details, int day, int month, int year, int hour, int minute) {
         this.uid = uid;
         this.author = author;
         this.title = title;
         this.details = details;
-        this.invitedUsers = invitedUsers;
         this.day = day;
         this.month = month;
         this.year = year;
@@ -63,7 +61,6 @@ public class Event {
         result.put("year", year);
         result.put("hour", hour);
         result.put("minute", minute);
-        result.put("invited-users", invitedUsers);
 
         return result;
     }
