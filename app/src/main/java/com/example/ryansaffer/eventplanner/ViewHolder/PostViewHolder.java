@@ -46,7 +46,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     public void bindToEvent(String eventKey, final Event event) {
 
-        FirebaseDatabase.getInstance().getReference().child("posts").child(eventKey).child("invited-users").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).child("invited-users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int attendingCount = 0;

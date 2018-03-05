@@ -92,7 +92,7 @@ public class EventDetailActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         // Initialize the database
-        mEventReference = FirebaseDatabase.getInstance().getReference().child("posts").child(mEventKey);
+        mEventReference = FirebaseDatabase.getInstance().getReference().child("events").child(mEventKey);
 
         // Initialize Views
         mAuthorView = findViewById(R.id.include_author_email);

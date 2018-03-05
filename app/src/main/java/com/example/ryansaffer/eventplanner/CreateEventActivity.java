@@ -178,12 +178,12 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
     public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, String> invitedUsers) {
         // create new event at "events/@post-id
-        String key = mDatabase.child("posts").push().getKey();
+        String key = mDatabase.child("events").push().getKey();
         Event event = new Event(userId,username,title,body,invitedUsers,this.day,this.month,this.year,this.hour,this.minute);
         Map<String, Object> eventValues = event.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/posts/" + key, eventValues);
+        childUpdates.put("/events/" + key, eventValues);
 
         mDatabase.updateChildren(childUpdates);
     }

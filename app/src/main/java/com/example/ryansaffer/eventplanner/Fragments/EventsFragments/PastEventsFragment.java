@@ -14,6 +14,6 @@ public class PastEventsFragment extends PostListFragment {
     @Override
     public Query getQuery(DatabaseReference databaseReference) {
         // All Past Events
-        return databaseReference.child("posts");
+        return databaseReference.child("events");
     }
 }

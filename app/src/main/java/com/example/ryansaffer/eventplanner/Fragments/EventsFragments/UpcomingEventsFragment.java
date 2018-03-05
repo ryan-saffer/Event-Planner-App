@@ -14,6 +14,6 @@ public class UpcomingEventsFragment extends PostListFragment {
     @Override
     public Query getQuery(DatabaseReference databaseReference) {
         // All upcoming posts
-        return databaseReference.child("posts");
+        return databaseReference.child("events");
     }
 }
