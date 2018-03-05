@@ -171,14 +171,19 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
                 // a map of all users
                 Map<String, Object> allUsersMap = new HashMap<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Boolean currentUser = snapshot.getKey().equals(uid);
                     User user = snapshot.getValue(User.class);
                     // a map of just the users name, and response status
                     if (user != null) {
                         Map<String, Object> singleUserMap = new HashMap<>();
-                        singleUserMap.put("status", "pending");
+                        // event creator defaults to attending, rest to pending
+                        String response = (currentUser) ? "accepted" : "pending";
+                        singleUserMap.put("status", response);
                         singleUserMap.put("username", user.username);
                         allUsersMap.put(snapshot.getKey(), singleUserMap);
                     }

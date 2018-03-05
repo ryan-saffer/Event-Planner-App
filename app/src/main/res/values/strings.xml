@@ -1,26 +1,29 @@
 <resources>
+    <!-- Event Post View -->
     <string name="app_name">Event Planner</string>
     <string name="users_accepted">Accepted:</string>
     <string name="users_rejected">Rejected:</string>
     <string name="users_awaiting_response">Awaiting Response:</string>
     <string name="author_tv">Created By:</string>
+    <string name="radio_btn_attending">I\'ll be there</string>
+    <string name="radio_btn_rejected">Can\'t go</string>
+    <string name="user_response_attending">You are attending</string>
+    <string name="user_response_rejected">You cannot attend</string>
+    <string name="user_response_pending">You are yet to respond</string>
 
+    <!-- Login Page -->
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
 
+    <!-- Event Creation -->
     <string name="hint_event_title">Event Title</string>
     <string name="hint_event_description">Enter some details about the event!</string>
-
     <string name="btn_select_date">Select Time and Date</string>
     <string name="date_time_label">Time and Date of Event:</string>
-
     <string name="posting">Posting...</string>
     <string name="err_user_null">Error: Could not fetch the user.</string>
-
-    <string name="radio_btn_attending">I\'ll be there</string>
-    <string name="radio_btn_rejected">Can\'t go</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

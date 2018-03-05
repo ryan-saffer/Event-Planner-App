@@ -34,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/radio_btn_attending" />
+            android:text="@string/radio_btn_attending"
+            android:textAlignment="viewStart" />
 
         <RadioButton
             android:id="@+id/radio_button_rejected"
@@ -42,7 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/radio_btn_rejected" />
+            android:text="@string/radio_btn_rejected"
+            android:textAlignment="viewStart" />
 
     </RadioGroup>
 
