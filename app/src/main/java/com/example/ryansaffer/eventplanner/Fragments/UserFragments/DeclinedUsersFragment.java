@@ -2,25 +2,17 @@ package com.example.ryansaffer.eventplanner.Fragments.UserFragments;
 
 import android.os.Bundle;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
 
 /**
- * Created by andre on 24/02/2018.
+ * Created by Ryan on 05-Mar-18.
  */
 
-public class InvitedUsersFragment extends UserListFragment {
+public class DeclinedUsersFragment extends UserListFragment {
 
-    private static final String TAG = "InvitedUsersFragment";
-
-    public static InvitedUsersFragment newInstance(String eventid) {
-        InvitedUsersFragment fragment = new InvitedUsersFragment();
+    public static DeclinedUsersFragment newInstance(String eventid) {
+        DeclinedUsersFragment fragment = new DeclinedUsersFragment();
         Bundle args = new Bundle();
         args.putString("eventid", eventid);
         fragment.setArguments(args);
@@ -33,6 +25,6 @@ public class InvitedUsersFragment extends UserListFragment {
         return reference.child("responses")
                 .child(eventKey)
                 .orderByChild("status")
-                .equalTo("pending");
+                .equalTo("declined");
     }
 }

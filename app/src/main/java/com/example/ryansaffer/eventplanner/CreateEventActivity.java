@@ -186,6 +186,39 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         childUpdates.put("/events/" + key, eventValues);
 
         mDatabase.updateChildren(childUpdates);
+
+        writeUserReponses(key);
+
+
+    }
+
+    // Using the eventKey, add all users under /responses/eventKey
+    public void writeUserReponses(final String eventKey) {
+        mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Map<String, Object> allUsersMap = new HashMap<>();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    User user = snapshot.getValue(User.class);
+
+                    Map<String, Object> singleUserMap = new HashMap<>();
+                    singleUserMap.put("status", "pending");
+                    singleUserMap.put("username", user.username);
+                    allUsersMap.put(snapshot.getKey(), singleUserMap);
+                }
+
+                Map<String, Object> finalMap = new HashMap<>();
+                finalMap.put("/responses/" + eventKey, allUsersMap);
+                mDatabase.updateChildren(finalMap);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG,"getUser:onCancelled",databaseError.toException());
+            }
+        });
     }
 
     public void setEditingEnabled(boolean enabled) {
