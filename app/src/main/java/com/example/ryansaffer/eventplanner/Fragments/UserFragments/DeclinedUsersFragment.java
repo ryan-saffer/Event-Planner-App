@@ -25,6 +25,6 @@ public class DeclinedUsersFragment extends UserListFragment {
         return reference.child("responses")
                 .child(eventKey)
                 .orderByChild("status")
-                .equalTo("declined");
+                .equalTo("rejected");
     }
 }

@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import com.example.ryansaffer.eventplanner.Fragments.UserFragments.AcceptedUsers
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.DeclinedUsersFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.InvitedUsersFragment;
 import com.example.ryansaffer.eventplanner.models.Event;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -104,6 +106,25 @@ public class EventDetailActivity extends AppCompatActivity {
         mResponseRadioGroup = findViewById(R.id.response_radio_group);
         mAttendingRadiobutton = findViewById(R.id.radio_button_attending);
         mRejectedRadioButton = findViewById(R.id.radio_button_rejected);
+
+        // set on click listeners for the radio buttons
+        mResponseRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                View radioButton = mResponseRadioGroup.findViewById(checkedId);
+                int index = mResponseRadioGroup.indexOfChild(radioButton);
+                switch (index) {
+                    case 0: // attending clicked
+                        updateUserResponse(true);
+                        break;
+                    case 1: // rejected clicked
+                        updateUserResponse(false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     @Override
@@ -125,6 +146,8 @@ public class EventDetailActivity extends AppCompatActivity {
                 mTitleView.setText(event.title);
                 mBodyView.setText(event.details);
                 mDateTimeView.setText(format.format(calendar.getTime()));
+
+                updateSelectedRadioButton();
             }
 
             @Override
@@ -138,6 +161,50 @@ public class EventDetailActivity extends AppCompatActivity {
 
         // Keep copy of post listener so we can remove it when app stops
         mEventListener = eventListener;
+    }
+
+    private void updateSelectedRadioButton() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference()
+                .child("responses")
+                .child(mEventKey)
+                .child(uid)
+                .child("status")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String response = dataSnapshot.getValue().toString();
+                        switch (response) {
+                            case "accepted":
+                                mAttendingRadiobutton.setChecked(true);
+                                break;
+                            case "rejected":
+                                mRejectedRadioButton.setChecked(true);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, "updateSelectedRadioButton:onCancelled", databaseError.toException());
+                    }
+                });
+    }
+
+    private void updateUserResponse(Boolean acceptedClicked) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
+                .child("responses")
+                .child(mEventKey)
+                .child(uid);
+        if (acceptedClicked) {
+            ref.child("status").setValue("accepted");
+        }
+        else {
+            ref.child("status").setValue("rejected");
+        }
     }
 
     @Override
