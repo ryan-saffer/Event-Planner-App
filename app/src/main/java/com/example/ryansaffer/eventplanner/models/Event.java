@@ -1,19 +1,7 @@
 package com.example.ryansaffer.eventplanner.models;
 
-import android.util.Log;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,16 +22,19 @@ public class Event {
     public int year;
     public int hour;
     public int minute;
-    public HashMap<String, String> invitedUsers;
+
+    public HashMap<String, Boolean> pendingUsers;
+    public HashMap<String, Boolean> acceptedUsers;
+    public HashMap<String, Boolean> rejectedUsers;
 
     public Event() {}
 
-    public Event(String uid, String author, String title, String details, HashMap<String, String> invitedUsers, int day, int month, int year, int hour, int minute) {
+    public Event(String uid, String author, String title, String details, HashMap<String, Boolean> invitedUsers, int day, int month, int year, int hour, int minute) {
         this.uid = uid;
         this.author = author;
         this.title = title;
         this.details = details;
-        this.invitedUsers = invitedUsers;
+        this.pendingUsers = invitedUsers;
         this.day = day;
         this.month = month;
         this.year = year;
@@ -63,7 +54,9 @@ public class Event {
         result.put("year", year);
         result.put("hour", hour);
         result.put("minute", minute);
-        result.put("invited-users", invitedUsers);
+        result.put("pending-users", pendingUsers);
+        result.put("accepted-users", acceptedUsers);
+        result.put("rejected-users", rejectedUsers);
 
         return result;
     }

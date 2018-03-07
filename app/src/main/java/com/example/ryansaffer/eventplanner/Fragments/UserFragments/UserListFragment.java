@@ -59,9 +59,10 @@ public abstract class UserListFragment extends Fragment {
 
         // set up FirebaseRecyclerAdapter with the query
         Query userQuery = getQuery(mDatabase);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users");
 
         FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<User>()
-                .setQuery(userQuery, User.class)
+                .setIndexedQuery(userQuery, ref, User.class)
                 .build();
 
         mAdapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(options) {

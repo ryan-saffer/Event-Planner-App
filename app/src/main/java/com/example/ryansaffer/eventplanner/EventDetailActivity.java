@@ -61,7 +61,7 @@ public class EventDetailActivity extends AppCompatActivity {
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
                     InvitedUsersFragment.newInstance(mEventKey),
-                    new InvitedUsersFragment(),
+                    new UpcomingEventsFragment(),
                     new UpcomingEventsFragment()
             };
             private final String[] mFragmentNames = new String[] {
