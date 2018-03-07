@@ -123,30 +123,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         setEditingEnabled(false);
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
-        // get all users uids, to be invited to the event
-        final HashMap<String, Boolean> invitedUsers = new HashMap<>();
-        FirebaseDatabase.getInstance().getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // get the UID of each user in the system, and add it to the Map of invited users
-                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
-                if (map != null) {
-                    for (String uid : map.keySet()) {
-                        invitedUsers.put(uid, true);
-                    }
-                }
-                // now create the event
-                createEvent(invitedUsers);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "getAllUsersUIDs:onCancelled", databaseError.toException());
-            }
-        });
-    }
-
-    public void createEvent(final HashMap<String, Boolean> invitedUsers) {
+        // get current user, then create the event
         final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -160,7 +137,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
                     Toast.makeText(CreateEventActivity.this, CreateEventActivity.this.getString(R.string.err_user_null), Toast.LENGTH_SHORT).show();
                 } else {
                     // write new event
-                    writeNewEvent(userId, user.username, title, body, invitedUsers);
+                    writeNewEvent(userId, user.username, title, body);
                 }
 
                 // Finish activity, back to the stream
@@ -176,16 +153,40 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         });
     }
 
-    public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, Boolean> invitedUsers) {
+    public void writeNewEvent(String userId, String username, String title, String body) {
         // create new event at "events/@post-id
         String key = mDatabase.child("events").push().getKey();
-        Event event = new Event(userId,username,title,body,invitedUsers,this.day,this.month,this.year,this.hour,this.minute);
+        Event event = new Event(userId,username,title,body,this.day,this.month,this.year,this.hour,this.minute);
         Map<String, Object> eventValues = event.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/events/" + key, eventValues);
 
         mDatabase.updateChildren(childUpdates);
+
+        // now that event is created, add all users in the system to pending-users of event
+        inviteAllUsers(key);
+    }
+
+    private void inviteAllUsers(final String eventKey) {
+        // get all users uids, to be invited to the event
+        mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // get the UID of each user in the system, and add it as an indexed map in the event
+                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
+                if (map != null) {
+                    for (String uid : map.keySet()) {
+                        mDatabase.child("events").child(eventKey).child("pending-users").child(uid).setValue(true);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "getAllUsersUIDs:onCancelled", databaseError.toException());
+            }
+        });
     }
 
     public void setEditingEnabled(boolean enabled) {

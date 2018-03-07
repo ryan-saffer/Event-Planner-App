@@ -4,7 +4,6 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.widget.TimePicker;
 import android.text.format.DateFormat;
 
 import com.example.ryansaffer.eventplanner.CreateEventActivity;
