@@ -46,31 +46,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     public void bindToEvent(String eventKey, final Event event) {
 
-        FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).child("invited-users").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int attendingCount = 0;
-                int notAttendingCount = 0;
-                int pendingCount = 0;
-                Map<String, String> map = (Map<String, String>) dataSnapshot.getValue();
-                if (map != null) {
-                    for (String response : map.values()) {
-                        switch (response) {
-                            case "attending":
-                                attendingCount ++;
-                                break;
-                            case "rejected":
-                                notAttendingCount ++;
-                                break;
-                            case "pending":
-                                pendingCount ++;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                setText(attendingCount, notAttendingCount, pendingCount, event);
+                long attendingCount = dataSnapshot.child("attending-users").getChildrenCount();
+                long notAttendingCount = dataSnapshot.child("rejected-users").getChildrenCount();
+                long pendingCount = dataSnapshot.child("pending-users").getChildrenCount();
+
+                setText((int) attendingCount, (int) notAttendingCount, (int) pendingCount, event);
             }
 
             @Override
