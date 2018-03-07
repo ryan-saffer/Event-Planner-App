@@ -22,9 +22,6 @@ public class AcceptedUsersFragment extends UserListFragment {
     @Override
     public Query getQuery(DatabaseReference reference) {
         String eventKey = getArguments().getString("eventid");
-        return reference.child("responses")
-                .child(eventKey)
-                .orderByChild("status")
-                .equalTo("accepted");
+        return reference.child("events").child(eventKey).child("accepted-users");
     }
 }

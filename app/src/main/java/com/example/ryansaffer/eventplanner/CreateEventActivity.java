@@ -123,6 +123,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         setEditingEnabled(false);
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
+        // get current user, then create the event
         final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -161,44 +162,27 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         childUpdates.put("/events/" + key, eventValues);
         mDatabase.updateChildren(childUpdates);
 
-        // now write to "responses -> eventKey" the uid and status of all users
-        writeUserReponses(key);
+        // now that event is created, add all users in the system to pending-users of event
+        inviteAllUsers(key);
     }
 
-    // Using the eventKey, add all users under /responses/eventKey
-    // and set status as 'pending'
-    public void writeUserReponses(final String eventKey) {
+    private void inviteAllUsers(final String eventKey) {
+        // get all users uids, to be invited to the event
         mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                // a map of all users
-                Map<String, Object> allUsersMap = new HashMap<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Boolean currentUser = snapshot.getKey().equals(uid);
-                    User user = snapshot.getValue(User.class);
-                    // a map of just the users name, and response status
-                    if (user != null) {
-                        Map<String, Object> singleUserMap = new HashMap<>();
-                        // event creator defaults to attending, rest to pending
-                        String response = (currentUser) ? "accepted" : "pending";
-                        singleUserMap.put("status", response);
-                        singleUserMap.put("username", user.username);
-                        allUsersMap.put(snapshot.getKey(), singleUserMap);
-                    }
-                    else {
-                        Log.e(TAG, "User " + snapshot.getKey() + " was unexpectedly null");
+                // get the UID of each user in the system, and add it as an indexed map in the event
+                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
+                if (map != null) {
+                    for (String uid : map.keySet()) {
+                        mDatabase.child("events").child(eventKey).child("pending-users").child(uid).setValue(true);
                     }
                 }
-                Map<String, Object> finalMap = new HashMap<>();
-                finalMap.put("/responses/" + eventKey, allUsersMap);
-                mDatabase.updateChildren(finalMap);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG,"getUser:onCancelled",databaseError.toException());
+                Log.w(TAG, "getAllUsersUIDs:onCancelled", databaseError.toException());
             }
         });
     }

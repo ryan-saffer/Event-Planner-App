@@ -11,6 +11,7 @@ import com.example.ryansaffer.eventplanner.models.Event;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -27,6 +28,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public static final String TAG = "PostViewHolder";
 
     private Context context;
+
+    public enum Response {
+        ATTENDING,
+        NOT_ATTENDING,
+        PENDING
+    }
 
     public TextView authorView;
     public TextView titleView;
@@ -53,48 +60,27 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindToEvent(String eventKey, final Event event) {
-
-        FirebaseDatabase.getInstance().getReference()
-                .child("responses")
-                .child(eventKey)
-                .addValueEventListener(new ValueEventListener() {
+        // count the number of accepted/rejected/pending
+        FirebaseDatabase.getInstance().getReference().child("events").child(eventKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // while we are here, lets also find out what the current user's response is
+                long attendingCount = dataSnapshot.child("accepted-users").getChildrenCount();
+                long notAttendingCount = dataSnapshot.child("rejected-users").getChildrenCount();
+                long pendingCount = dataSnapshot.child("pending-users").getChildrenCount();
+
+                // find out the logged in users response
+                Response response = Response.PENDING;
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                int attendingCount = 0;
-                int notAttendingCount = 0;
-                int pendingCount = 0;
-
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String response = snapshot.child("status").getValue().toString();
-                    Boolean currentUser = snapshot.getKey().equals(uid);
-
-                    switch (response) {
-                        case "accepted":
-                            attendingCount ++;
-                            if (currentUser) {
-                                responseTextView.setText(context.getResources().getString(R.string.user_response_attending));
-                            }
-                            break;
-                        case "rejected":
-                            notAttendingCount ++;
-                            if (currentUser) {
-                                responseTextView.setText(context.getResources().getString(R.string.user_response_rejected));
-                            }
-                            break;
-                        case "pending":
-                            pendingCount ++;
-                            if (currentUser) {
-                                responseTextView.setText(context.getResources().getString(R.string.user_response_pending));
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                if (dataSnapshot.child("accepted-users").child(uid).exists())
+                {
+                    response = Response.ATTENDING;
                 }
-                setText(attendingCount, notAttendingCount, pendingCount, event);
+                else if (dataSnapshot.child("rejected-users").child(uid).exists())
+                {
+                    response = Response.NOT_ATTENDING;
+                }
+
+                setText((int) attendingCount, (int) notAttendingCount, (int) pendingCount, response, event);
             }
 
             @Override
@@ -104,7 +90,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    private void setText(int attendingCount, int notAttendingCount, int pendingCount, Event event) {
+    private void setText(int attendingCount, int notAttendingCount, int pendingCount, Response response, Event event) {
 
         SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a");
         Calendar cal = Calendar.getInstance();
@@ -117,5 +103,20 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         attendingCountView.setText(String.valueOf(attendingCount));
         rejectedCountView.setText(String.valueOf(notAttendingCount));
         awaitingResponseCountView.setText(String.valueOf(pendingCount));
+
+        // set the user response
+        switch(response) {
+            case ATTENDING:
+                responseTextView.setText(context.getResources().getString(R.string.user_response_attending));
+                break;
+            case NOT_ATTENDING:
+                responseTextView.setText(context.getResources().getString(R.string.user_response_rejected));
+                break;
+            case PENDING:
+                responseTextView.setText(context.getResources().getString(R.string.user_response_pending));
+                break;
+            default:
+                break;
+        }
     }
 }

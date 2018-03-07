@@ -164,25 +164,18 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void updateSelectedRadioButton() {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseDatabase.getInstance().getReference()
-                .child("responses")
+                .child("events")
                 .child(mEventKey)
-                .child(uid)
-                .child("status")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        String response = dataSnapshot.getValue().toString();
-                        switch (response) {
-                            case "accepted":
-                                mAttendingRadiobutton.setChecked(true);
-                                break;
-                            case "rejected":
-                                mRejectedRadioButton.setChecked(true);
-                                break;
-                            default:
-                                break;
+                        if (dataSnapshot.child("accepted-users").child(uid).exists()) {
+                            mAttendingRadiobutton.setChecked(true);
+                        }
+                        else if (dataSnapshot.child("rejected-users").child(uid).exists()) {
+                            mRejectedRadioButton.setChecked(true);
                         }
                     }
 
@@ -196,14 +189,19 @@ public class EventDetailActivity extends AppCompatActivity {
     private void updateUserResponse(Boolean acceptedClicked) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
-                .child("responses")
-                .child(mEventKey)
-                .child(uid);
+                .child("events")
+                .child(mEventKey);
         if (acceptedClicked) {
-            ref.child("status").setValue("accepted");
+            ref.child("accepted-users").child(uid).setValue(true);
+            // don't forget to remove user from the declined/pending lists
+            ref.child("rejected-users").child(uid).removeValue();
+            ref.child("pending-users").child(uid).removeValue();
         }
         else {
-            ref.child("status").setValue("rejected");
+            ref.child("rejected-users").child(uid).setValue(true);
+            // dont' forget to remove user from the accepted/pending lists
+            ref.child("accepted-users").child(uid).removeValue();
+            ref.child("pending-users").child(uid).removeValue();
         }
     }
 

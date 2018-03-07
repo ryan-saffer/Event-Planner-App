@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-
-import java.util.ArrayList;
 
 /**
  * Created by ryansaffer on 21/2/18.
@@ -59,15 +56,15 @@ public abstract class UserListFragment extends Fragment {
 
         // set up FirebaseRecyclerAdapter with the query
         Query userQuery = getQuery(mDatabase);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users");
 
         FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<User>()
-                .setQuery(userQuery, User.class)
+                .setIndexedQuery(userQuery, ref, User.class)
                 .build();
 
         mAdapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User model) {
-                final DatabaseReference userRef = getRef(position);
                 holder.bindToUser(model);
             }
 
