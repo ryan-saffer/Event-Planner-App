@@ -39,6 +39,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
     private static final String REQUIRED = "Required";
 
     private DatabaseReference mDatabase;
+    private String mUid;
 
     EditText mTitleField;
     EditText mDetailField;
@@ -61,6 +62,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         setContentView(R.layout.activity_create_event);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         mTitleField = findViewById(R.id.et_event_name);
         mDetailField = findViewById(R.id.et_event_details);
@@ -93,7 +95,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         calendar.set(this.year, this.month, this.day, this.hour, this.minute);
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a", Locale.ENGLISH);
 
-        ((TextView) findViewById(R.id.selected_date_tv)).setText(dateFormat.format(calendar.getTime()));
+        mDateTimeField.setText(dateFormat.format(calendar.getTime()));
     }
 
     public void submitEvent(View v) {
@@ -124,8 +126,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
         // get current user, then create the event
-        final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("users").child(mUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get user value
@@ -133,11 +134,11 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
                 // if user is null error out
                 if (user == null) {
-                    Log.e(TAG, "User " + userId + " is unexpectedly null");
+                    Log.e(TAG, "User " + mUid + " is unexpectedly null");
                     Toast.makeText(CreateEventActivity.this, CreateEventActivity.this.getString(R.string.err_user_null), Toast.LENGTH_SHORT).show();
                 } else {
                     // write new event
-                    writeNewEvent(userId, user.username, title, body);
+                    writeNewEvent(mUid, user.username, title, body);
                 }
 
                 // Finish activity, back to the stream
@@ -175,7 +176,12 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
                 Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
                 if (map != null) {
                     for (String uid : map.keySet()) {
-                        mDatabase.child("events").child(eventKey).child("pending-users").child(uid).setValue(true);
+                        // user that creates event defaults to accepted
+                        if (uid.equals(mUid)) {
+                            mDatabase.child("events").child(eventKey).child("accpted-users").child(uid).setValue(true);
+                        } else {
+                            mDatabase.child("events").child(eventKey).child("pending-users").child(uid).setValue(true);
+                        }
                     }
                 }
             }

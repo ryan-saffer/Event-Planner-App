@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.AlphaAnimation;
 
 import com.example.ryansaffer.eventplanner.R;
 import com.example.ryansaffer.eventplanner.ViewHolder.PostViewHolder;
@@ -23,12 +26,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.auth.FirebaseAuth;
 
 
-public abstract class PostListFragment extends Fragment {
+public abstract class PostListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "PostListFragment";
 
     private DatabaseReference mDatabase;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private FirebaseRecyclerAdapter<Event, PostViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
@@ -47,6 +51,8 @@ public abstract class PostListFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END create_database_reference]
 
+        mSwipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_event);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
         mRecycler = rootView.findViewById(R.id.events_list);
         mRecycler.setHasFixedSize(true);
 
@@ -63,6 +69,22 @@ public abstract class PostListFragment extends Fragment {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
 
+        reloadRecyclerViewData();
+    }
+
+    @Override
+    public void onRefresh() {
+        reloadRecyclerViewData();
+    }
+
+    private void displayPullToRefresh() {
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
+    }
+
+    public void reloadRecyclerViewData() {
+        displayPullToRefresh();
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(mDatabase);
 
@@ -73,6 +95,8 @@ public abstract class PostListFragment extends Fragment {
         mAdapter = new FirebaseRecyclerAdapter<Event, PostViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Event model) {
+                displayPullToRefresh();
+
                 final DatabaseReference postRef = getRef(position);
 
                 // Set click listener for the whole post view
@@ -86,8 +110,13 @@ public abstract class PostListFragment extends Fragment {
                         startActivity(intent);
                     }
                 });
-
                 holder.bindToEvent(eventKey, model);
+
+                // if the last item, stop refreshing
+                if (position == 0)
+                {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
             }
 
             @Override
@@ -97,6 +126,7 @@ public abstract class PostListFragment extends Fragment {
             }
         };
         mRecycler.setAdapter(mAdapter);
+        mAdapter.startListening();
     }
 
     @Override

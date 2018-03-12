@@ -80,7 +80,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                     response = Response.NOT_ATTENDING;
                 }
 
-                setText((int) attendingCount, (int) notAttendingCount, (int) pendingCount, response, event);
+                setText(attendingCount, notAttendingCount, pendingCount, response, event);
             }
 
             @Override
@@ -90,7 +90,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    private void setText(int attendingCount, int notAttendingCount, int pendingCount, Response response, Event event) {
+    private void setText(long attendingCount, long notAttendingCount, long pendingCount, Response response, Event event) {
 
         SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a");
         Calendar cal = Calendar.getInstance();

@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabsLayout = findViewById(R.id.tabs_main);
         tabsLayout.setupWithViewPager(mViewPager);
 
-        // TODO: Button launches NewPostActivity
         findViewById(R.id.fab_new_post).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
