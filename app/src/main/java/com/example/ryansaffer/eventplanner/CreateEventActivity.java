@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.example.ryansaffer.eventplanner.PickerFragments.DatePickerFragment;
 import com.example.ryansaffer.eventplanner.PickerFragments.TimePickerFragment;
-import com.example.ryansaffer.eventplanner.ViewHolder.PostViewHolder;
 import com.example.ryansaffer.eventplanner.models.Event;
 import com.example.ryansaffer.eventplanner.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,20 +41,20 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
     private DatabaseReference mDatabase;
     private String mUid;
 
-    EditText mTitleField;
-    EditText mDetailField;
+    // a flag used to determine if creating a brand new event, or editing existing one
+    private Boolean mEditingEvent;
+    private String mEventKey;
+    // if editing existing, store that event
+    private Event mEvent;
+
+    EditText mTitleField, mDetailField;
     TextView mDateTimeField;
     Button mSelectDateTimeBtn;
     FloatingActionButton mSubmitButton;
 
-    private static String title;
-    private static String body;
+    private static String mTitle, mBody;
 
-    private int year;
-    private int month;
-    private int day;
-    private int hour;
-    private int minute;
+    private int mYear, mMonth, mDay, mHour, mMinute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,11 +64,39 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        // determine if editing an existing event
+        mEventKey = getIntent().getStringExtra(EventDetailActivity.EXTRA_EVENT_KEY);
+        mEditingEvent = mEventKey != null;
+
         mTitleField = findViewById(R.id.et_event_name);
         mDetailField = findViewById(R.id.et_event_details);
         mDateTimeField = findViewById(R.id.selected_date_tv);
         mSelectDateTimeBtn = findViewById(R.id.date_selection_btn);
         mSubmitButton = findViewById(R.id.fab_create_event);
+
+        if (mEditingEvent) {
+            prefillAllFields();
+        }
+    }
+
+    private void prefillAllFields() {
+        mDatabase.child("events").child(mEventKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mEvent = dataSnapshot.getValue(Event.class);
+                mTitleField.setText(mEvent.title);
+                mDetailField.setText(mEvent.details);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(mEvent.year, mEvent.month, mEvent.day, mEvent.hour, mEvent.minute);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a", Locale.ENGLISH);
+                mDateTimeField.setText(dateFormat.format(calendar.getTime()));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "prefillAllFields:onCancelled", databaseError.toException());
+            }
+        });
     }
 
     public void showDatePickerDialog(View v) {
@@ -79,9 +106,9 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        this.year = year;
-        this.month = month;
-        this.day = dayOfMonth;
+        this.mYear = year;
+        this.mMonth = month;
+        this.mDay = dayOfMonth;
 
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
@@ -89,29 +116,29 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        this.hour = hourOfDay;
-        this.minute = minute;
+        this.mHour = hourOfDay;
+        this.mMinute = minute;
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(this.year, this.month, this.day, this.hour, this.minute);
+        calendar.set(this.mYear, this.mMonth, this.mDay, this.mHour, this.mMinute);
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a", Locale.ENGLISH);
 
         mDateTimeField.setText(dateFormat.format(calendar.getTime()));
     }
 
     public void submitEvent(View v) {
-        title = mTitleField.getText().toString();
-        body = mDetailField.getText().toString();
+        mTitle = mTitleField.getText().toString();
+        mBody = mDetailField.getText().toString();
         final String dateTime = mDateTimeField.getText().toString();
 
         // Title required
-        if (TextUtils.isEmpty(title)) {
+        if (TextUtils.isEmpty(mTitle)) {
             mTitleField.setError(REQUIRED);
             return;
         }
 
         // Details required
-        if (TextUtils.isEmpty(body)) {
+        if (TextUtils.isEmpty(mBody)) {
             mDetailField.setError(REQUIRED);
             return;
         }
@@ -124,29 +151,34 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
 
         // Disable button so there are no multi-posts
         setEditingEnabled(false);
-        Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, mEditingEvent ? this.getString(R.string.updating) : this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
-        // create a response map of all users, then create the event
-        mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            HashMap<String, Event.Response> userResponses = new HashMap<>();
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
-                for (String uid : map.keySet()) {
-                    if (uid.equals(mUid)) {
-                        userResponses.put(uid, Event.Response.ATTENDING);
-                    } else {
-                        userResponses.put(uid, Event.Response.PENDING);
+        // if editing, use existing userResponses
+        if (mEditingEvent) {
+            createEvent(mEvent.userResponses);
+        } else {
+            // create a response map of all users, then create the event
+            mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                HashMap<String, Event.Response> userResponses = new HashMap<>();
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
+                    for (String uid : map.keySet()) {
+                        if (uid.equals(mUid)) {
+                            userResponses.put(uid, Event.Response.ATTENDING);
+                        } else {
+                            userResponses.put(uid, Event.Response.PENDING);
+                        }
                     }
+                    createEvent(userResponses);
                 }
-                createEvent(userResponses);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG,"createUserResponses:onCancelled",databaseError.toException());
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w(TAG, "createUserResponses:onCancelled", databaseError.toException());
+                }
+            });
+        }
     }
 
     public void createEvent(final HashMap<String, Event.Response> userResponses) {
@@ -163,7 +195,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
                     Toast.makeText(CreateEventActivity.this, CreateEventActivity.this.getString(R.string.err_user_null), Toast.LENGTH_SHORT).show();
                 } else {
                     // write new event
-                    writeNewEvent(mUid, user.username, title, body, userResponses);
+                    writeNewEvent(mUid, user.username, mTitle, mBody, userResponses);
                 }
 
                 // Finish activity, back to the stream
@@ -180,12 +212,17 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
     }
 
     public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, Event.Response> userResponses) {
-        // create new event at "events/@post-id
-        String key = mDatabase.child("events").push().getKey();
-        Event event = new Event(userId,username,title,body,userResponses,this.day,this.month,this.year,this.hour,this.minute);
+        Event event;
+        if (!mEditingEvent) {
+            // create new event at "events/@event-id
+            mEventKey = mDatabase.child("events").push().getKey();
+            event = mEvent;
+        } else {
+            event = new Event(userId,username,title,body,userResponses,this.mDay,this.mMonth,this.mYear,this.mHour,this.mMinute);
+        }
         Map<String, Object> eventValues = event.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/events/" + key, eventValues);
+        childUpdates.put("/events/" + mEventKey, eventValues);
         mDatabase.updateChildren(childUpdates);
     }
 

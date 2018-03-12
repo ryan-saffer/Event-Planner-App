@@ -95,7 +95,7 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
 
         mAdapter = new FirebaseRecyclerAdapter<Event, PostViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Event model) {
+            protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull final Event model) {
                 final DatabaseReference postRef = getRef(position);
 
                 // Set click listener for the whole post view
@@ -106,6 +106,7 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
                         // Launch EventDetailActivity
                         Intent intent = new Intent(getActivity(), EventDetailActivity.class);
                         intent.putExtra(EventDetailActivity.EXTRA_EVENT_KEY, eventKey);
+                        intent.putExtra(EventDetailActivity.EXTRA_AUTHOR_ID, model.uid);
                         startActivity(intent);
                     }
                 });

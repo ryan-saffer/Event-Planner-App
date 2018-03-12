@@ -1,12 +1,18 @@
 package com.example.ryansaffer.eventplanner;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -35,10 +41,13 @@ public class EventDetailActivity extends AppCompatActivity {
     private static final String TAG = "EventDetailActivity";
 
     public static final String EXTRA_EVENT_KEY = "event_key";
+    public static final String EXTRA_AUTHOR_ID = "author_id";
 
     private DatabaseReference mEventReference;
     private ValueEventListener mEventListener;
     private String mEventKey;
+    private String mAuthorID;
+    private String mUid;
 
     private TextView mAuthorView;
     private TextView mTitleView;
@@ -60,6 +69,12 @@ public class EventDetailActivity extends AppCompatActivity {
         mEventKey = getIntent().getStringExtra(EXTRA_EVENT_KEY);
         if (mEventKey == null) {
             throw new IllegalArgumentException("Must pass EXTRA_EVENT_KEY");
+        }
+
+        // Get author id from Intent
+        mAuthorID = getIntent().getStringExtra(EXTRA_AUTHOR_ID);
+        if (mAuthorID == null) {
+            throw new IllegalArgumentException("Must pass EXTRA_AUTHOR_ID");
         }
 
         // initialise the fragments
@@ -99,6 +114,9 @@ public class EventDetailActivity extends AppCompatActivity {
         // Initialize the database
         mEventReference = FirebaseDatabase.getInstance().getReference().child("events").child(mEventKey);
 
+        // get the users uid
+        mUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         // Initialize Views
         mAuthorView = findViewById(R.id.include_author_email);
         mTitleView = findViewById(R.id.post_title);
@@ -126,6 +144,45 @@ public class EventDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // determine if the user owns this event, is so inflate the menu
+        if (mUid.equals(mAuthorID)) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.event_details_menu, menu);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit_event:
+                Intent intent = new Intent(EventDetailActivity.this, CreateEventActivity.class);
+                intent.putExtra(EXTRA_EVENT_KEY, mEventKey);
+                startActivity(intent);
+                return true;
+            case R.id.delete_event:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.confirm_deletion_title)
+                        .setMessage(R.string.confirm_deletion_message)
+                        .setIcon(R.drawable.ic_warning_black_24dp)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteEvent();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -165,19 +222,15 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void updateSelectedRadioButton() {
-        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseDatabase.getInstance().getReference()
-                .child("events")
-                .child(mEventKey)
-                .child("userResponses")
+        mEventReference.child("userResponses")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         HashMap<String, String> userResponses = (HashMap<String, String>)dataSnapshot.getValue();
-                        if (userResponses.get(uid).equals(Event.Response.ATTENDING.toString())) {
+                        if (userResponses.get(mUid).equals(Event.Response.ATTENDING.toString())) {
                             mAttendingRadiobutton.setChecked(true);
                         }
-                        else if (userResponses.get(uid).equals(Event.Response.NOT_ATTENDING.toString())) {
+                        else if (userResponses.get(mUid).equals(Event.Response.NOT_ATTENDING.toString())) {
                             mRejectedRadioButton.setChecked(true);
                         }
                     }
@@ -190,18 +243,21 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void updateUserResponse(Boolean acceptedClicked) {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
-                .child("events")
-                .child(mEventKey)
+        DatabaseReference ref = mEventReference
                 .child("userResponses")
-                .child(uid);
+                .child(mUid);
         if (acceptedClicked) {
             ref.setValue(Event.Response.ATTENDING);
         }
         else {
             ref.setValue(Event.Response.NOT_ATTENDING);
         }
+    }
+
+    private void deleteEvent() {
+        mEventReference.removeEventListener(mEventListener);
+        mEventReference.removeValue();
+        finish();
     }
 
     @Override
