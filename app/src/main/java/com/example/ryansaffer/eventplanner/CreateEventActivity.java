@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.ryansaffer.eventplanner.PickerFragments.DatePickerFragment;
 import com.example.ryansaffer.eventplanner.PickerFragments.TimePickerFragment;
+import com.example.ryansaffer.eventplanner.ViewHolder.PostViewHolder;
 import com.example.ryansaffer.eventplanner.models.Event;
 import com.example.ryansaffer.eventplanner.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -125,6 +126,30 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         setEditingEnabled(false);
         Toast.makeText(this, this.getString(R.string.posting), Toast.LENGTH_SHORT).show();
 
+        // create a response map of all users, then create the event
+        mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            HashMap<String, Event.Response> userResponses = new HashMap<>();
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
+                for (String uid : map.keySet()) {
+                    if (uid.equals(mUid)) {
+                        userResponses.put(uid, Event.Response.ATTENDING);
+                    } else {
+                        userResponses.put(uid, Event.Response.PENDING);
+                    }
+                }
+                createEvent(userResponses);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG,"createUserResponses:onCancelled",databaseError.toException());
+            }
+        });
+    }
+
+    public void createEvent(final HashMap<String, Event.Response> userResponses) {
         // get current user, then create the event
         mDatabase.child("users").child(mUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -138,7 +163,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
                     Toast.makeText(CreateEventActivity.this, CreateEventActivity.this.getString(R.string.err_user_null), Toast.LENGTH_SHORT).show();
                 } else {
                     // write new event
-                    writeNewEvent(mUid, user.username, title, body);
+                    writeNewEvent(mUid, user.username, title, body, userResponses);
                 }
 
                 // Finish activity, back to the stream
@@ -154,43 +179,14 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         });
     }
 
-    public void writeNewEvent(String userId, String username, String title, String body) {
+    public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, Event.Response> userResponses) {
         // create new event at "events/@post-id
         String key = mDatabase.child("events").push().getKey();
-        Event event = new Event(userId,username,title,body,this.day,this.month,this.year,this.hour,this.minute);
+        Event event = new Event(userId,username,title,body,userResponses,this.day,this.month,this.year,this.hour,this.minute);
         Map<String, Object> eventValues = event.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/events/" + key, eventValues);
         mDatabase.updateChildren(childUpdates);
-
-        // now that event is created, add all users in the system to pending-users of event
-        inviteAllUsers(key);
-    }
-
-    private void inviteAllUsers(final String eventKey) {
-        // get all users uids, to be invited to the event
-        mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // get the UID of each user in the system, and add it as an indexed map in the event
-                Map<String, Map> map = (Map<String, Map>) dataSnapshot.getValue();
-                if (map != null) {
-                    for (String uid : map.keySet()) {
-                        // user that creates event defaults to accepted
-                        if (uid.equals(mUid)) {
-                            mDatabase.child("events").child(eventKey).child("accpted-users").child(uid).setValue(true);
-                        } else {
-                            mDatabase.child("events").child(eventKey).child("pending-users").child(uid).setValue(true);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "getAllUsersUIDs:onCancelled", databaseError.toException());
-            }
-        });
     }
 
     public void setEditingEnabled(boolean enabled) {

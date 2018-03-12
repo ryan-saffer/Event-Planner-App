@@ -2,6 +2,7 @@ package com.example.ryansaffer.eventplanner.Fragments.UserFragments;
 
 import android.os.Bundle;
 
+import com.example.ryansaffer.eventplanner.models.Event;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
@@ -22,6 +23,8 @@ public class DeclinedUsersFragment extends UserListFragment {
     @Override
     public Query getQuery(DatabaseReference reference) {
         String eventKey = getArguments().getString("eventid");
-        return reference.child("events").child(eventKey).child("rejected-users");
+        return reference.child("events").child(eventKey).child("userResponses")
+                .orderByValue()
+                .equalTo(Event.Response.NOT_ATTENDING.toString());
     }
 }

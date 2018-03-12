@@ -64,7 +64,13 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
         super.onActivityCreated(savedInstanceState);
 
         // Set up layout manager, reverse layout
-        mManager = new LinearLayoutManager(getActivity());
+        mManager = new LinearLayoutManager(getActivity()) {
+            @Override
+            public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+                super.onAdapterChanged(oldAdapter, newAdapter);
+
+            }
+        };
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
@@ -77,14 +83,9 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
         reloadRecyclerViewData();
     }
 
-    private void displayPullToRefresh() {
-        if (!mSwipeRefreshLayout.isRefreshing()) {
-            mSwipeRefreshLayout.setRefreshing(true);
-        }
-    }
-
     public void reloadRecyclerViewData() {
-        displayPullToRefresh();
+        mSwipeRefreshLayout.setRefreshing(true);
+
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(mDatabase);
 
@@ -95,8 +96,6 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
         mAdapter = new FirebaseRecyclerAdapter<Event, PostViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Event model) {
-                displayPullToRefresh();
-
                 final DatabaseReference postRef = getRef(position);
 
                 // Set click listener for the whole post view
@@ -111,18 +110,18 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
                     }
                 });
                 holder.bindToEvent(eventKey, model);
-
-                // if the last item, stop refreshing
-                if (position == 0)
-                {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
             }
 
             @Override
             public PostViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 LayoutInflater inflater = LayoutInflater.from(parent.getContext());
                 return new PostViewHolder(inflater.inflate(R.layout.item_post, parent, false));
+            }
+
+            @Override
+            public void onDataChanged() {
+                super.onDataChanged();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         };
         mRecycler.setAdapter(mAdapter);

@@ -31,12 +31,6 @@ public abstract class UserListFragment extends Fragment implements SwipeRefreshL
 
     private DatabaseReference mDatabase;
 
-    // used to know when recycler view finished, to update pullToRefresh
-    private RecyclerViewReadyCallback recyclerViewReadyCallback;
-    public interface RecyclerViewReadyCallback {
-        void onLayoutReady();
-    }
-
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private FirebaseRecyclerAdapter<User, UserViewHolder> mAdapter;
     private RecyclerView mRecycler;
@@ -68,42 +62,12 @@ public abstract class UserListFragment extends Fragment implements SwipeRefreshL
         reloadRecyclerData();
     }
 
-    public void resetRecycler() {
-        // this method allows us to know when the recycler has finished laying down all its items
-        // previously all the following was placed onActivityCreated, but this method
-        // allows pullToRefresh to correctly show/hide refresher, not just on the first load
-        mRecycler.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (recyclerViewReadyCallback != null) {
-                    recyclerViewReadyCallback.onLayoutReady();
-                }
-                mRecycler.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
-
-        recyclerViewReadyCallback = new RecyclerViewReadyCallback() {
-            @Override
-            public void onLayoutReady() {
-                // all code run here is only run once all views laid down
-                if (mSwipeRefreshLayout.isRefreshing()) {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        };
-    }
-
     public void onRefresh() {
         reloadRecyclerData();
     }
 
-    private void displayPullToRefresh() {
-        if (!mSwipeRefreshLayout.isRefreshing()) {
-            mSwipeRefreshLayout.setRefreshing(true);
-        }
-    }
-
     private void reloadRecyclerData() {
+        mSwipeRefreshLayout.setRefreshing(true);
         // set up FirebaseRecyclerAdapter with the query
         Query userQuery = getQuery(mDatabase);
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("users");
@@ -115,14 +79,7 @@ public abstract class UserListFragment extends Fragment implements SwipeRefreshL
         mAdapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User model) {
-                displayPullToRefresh();
-
                 holder.bindToUser(model);
-
-                if ((this.getItemCount() - 1) == position)
-                {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
             }
 
             @Override
@@ -130,9 +87,13 @@ public abstract class UserListFragment extends Fragment implements SwipeRefreshL
                 LayoutInflater inflater = LayoutInflater.from(parent.getContext());
                 return new UserViewHolder(inflater.inflate(R.layout.include_user, parent, false));
             }
-        };
 
-        resetRecycler();
+            @Override
+            public void onDataChanged() {
+                super.onDataChanged();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        };
         mRecycler.setAdapter(mAdapter);
         mAdapter.startListening();
     }

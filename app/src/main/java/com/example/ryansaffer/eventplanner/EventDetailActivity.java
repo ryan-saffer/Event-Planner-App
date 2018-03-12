@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class EventDetailActivity extends AppCompatActivity {
 
@@ -168,13 +169,15 @@ public class EventDetailActivity extends AppCompatActivity {
         FirebaseDatabase.getInstance().getReference()
                 .child("events")
                 .child(mEventKey)
+                .child("userResponses")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.child("accepted-users").child(uid).exists()) {
+                        HashMap<String, String> userResponses = (HashMap<String, String>)dataSnapshot.getValue();
+                        if (userResponses.get(uid).equals(Event.Response.ATTENDING.toString())) {
                             mAttendingRadiobutton.setChecked(true);
                         }
-                        else if (dataSnapshot.child("rejected-users").child(uid).exists()) {
+                        else if (userResponses.get(uid).equals(Event.Response.NOT_ATTENDING.toString())) {
                             mRejectedRadioButton.setChecked(true);
                         }
                     }
@@ -190,18 +193,14 @@ public class EventDetailActivity extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
                 .child("events")
-                .child(mEventKey);
+                .child(mEventKey)
+                .child("userResponses")
+                .child(uid);
         if (acceptedClicked) {
-            ref.child("accepted-users").child(uid).setValue(true);
-            // don't forget to remove user from the declined/pending lists
-            ref.child("rejected-users").child(uid).removeValue();
-            ref.child("pending-users").child(uid).removeValue();
+            ref.setValue(Event.Response.ATTENDING);
         }
         else {
-            ref.child("rejected-users").child(uid).setValue(true);
-            // dont' forget to remove user from the accepted/pending lists
-            ref.child("accepted-users").child(uid).removeValue();
-            ref.child("pending-users").child(uid).removeValue();
+            ref.setValue(Event.Response.NOT_ATTENDING);
         }
     }
 

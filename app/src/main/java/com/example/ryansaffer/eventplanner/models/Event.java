@@ -13,6 +13,12 @@ public class Event {
 
     private static final String TAG = "Event";
 
+    public enum Response {
+        ATTENDING,
+        NOT_ATTENDING,
+        PENDING
+    }
+
     public String uid;
     public String author;
     public String title;
@@ -22,10 +28,11 @@ public class Event {
     public int year;
     public int hour;
     public int minute;
+    public HashMap<String, Response> userResponses;
 
     public Event() {}
 
-    public Event(String uid, String author, String title, String details, int day, int month, int year, int hour, int minute) {
+    public Event(String uid, String author, String title, String details, HashMap<String, Response> userResponses, int day, int month, int year, int hour, int minute) {
         this.uid = uid;
         this.author = author;
         this.title = title;
@@ -35,6 +42,7 @@ public class Event {
         this.year = year;
         this.hour = hour;
         this.minute = minute;
+        this.userResponses = userResponses;
     }
 
     @Exclude
@@ -49,6 +57,7 @@ public class Event {
         result.put("year", year);
         result.put("hour", hour);
         result.put("minute", minute);
+        result.put("userResponses", userResponses);
 
         return result;
     }
