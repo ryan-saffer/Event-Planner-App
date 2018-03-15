@@ -26,18 +26,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.auth.FirebaseAuth;
 
 
-public abstract class PostListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class EventListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String TAG = "PostListFragment";
+    private static final String TAG = "EventListFragment";
 
     private DatabaseReference mDatabase;
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    public SwipeRefreshLayout mSwipeRefreshLayout;
     private FirebaseRecyclerAdapter<Event, PostViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
 
-    public PostListFragment() {
+    public EventListFragment() {
         // Required empty public constructor
     }
 
@@ -64,13 +64,7 @@ public abstract class PostListFragment extends Fragment implements SwipeRefreshL
         super.onActivityCreated(savedInstanceState);
 
         // Set up layout manager, reverse layout
-        mManager = new LinearLayoutManager(getActivity()) {
-            @Override
-            public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
-                super.onAdapterChanged(oldAdapter, newAdapter);
-
-            }
-        };
+        mManager = new LinearLayoutManager(getActivity());
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);

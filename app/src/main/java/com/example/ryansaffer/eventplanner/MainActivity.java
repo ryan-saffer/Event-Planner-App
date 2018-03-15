@@ -1,89 +1,78 @@
 package com.example.ryansaffer.eventplanner;
 
-import android.content.Intent;
-import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.MyEventsFragment;
-import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.AllEventsFragment;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.ryansaffer.eventplanner.Fragments.FriendsFragment;
+import com.example.ryansaffer.eventplanner.Fragments.HomeFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements  NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "HomeFragment";
 
-    private FragmentPagerAdapter mPagerAdapter;
-    private ViewPager mViewPager;
+    private DrawerLayout mDrawerLayout;
+    private FragmentManager mFragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create the adapter that will return a fragment for each section
-        mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            private final Fragment[] mFragments = new Fragment[] {
-                    new AllEventsFragment(),
-                    new MyEventsFragment(),
-            };
-            private final String[] mFragmentNames = new String[] {
-                    "All Events",
-                    "My Events"
-            };
+        // Set up the Toolbar (since we are using a DrawerLayout)
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-            @Override
-            public Fragment getItem(int position) {
-                return mFragments[position];
-            }
+        // Set up the DrawerLayout
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
-            @Override
-            public int getCount() {
-                return mFragments.length;
-            }
+        // Set up the Navigation View
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return mFragmentNames[position];
-            }
-        };
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container_main);
-        mViewPager.setAdapter(mPagerAdapter);
-        TabLayout tabsLayout = findViewById(R.id.tabs_main);
-        tabsLayout.setupWithViewPager(mViewPager);
-
-        findViewById(R.id.fab_new_post).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, CreateEventActivity.class));
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
-        return true;
+        // Create the Events Fragment and place it into the container
+        Fragment fragment = new HomeFragment();
+        mFragmentManager = getSupportFragmentManager();
+        mFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_logout:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, SignInActivity.class));
-                finish();
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Fragment fragment;
+        switch (item.getItemId()) {
+            case R.id.drawer_home:
+                fragment = new HomeFragment();
+                mFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                break;
+            case R.id.drawer_friends:
+                fragment = new FriendsFragment();
+                mFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(null).commit();
+                break;
+        }
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

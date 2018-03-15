@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.ryansaffer.eventplanner.Fragments.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -125,8 +126,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         // Write new user
         writeNewUser(user.getUid(), username, user.getEmail());
 
-        // Go to MainActivity
-        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+        // Go to HomeFragment
+        startActivity(new Intent(SignInActivity.this, HomeFragment.class));
         finish();
     }
 

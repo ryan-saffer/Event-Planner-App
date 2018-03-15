@@ -8,7 +8,7 @@ import com.google.firebase.database.Query;
  * Created by ryansaffer on 21/2/18.
  */
 
-public class MyEventsFragment extends PostListFragment {
+public class MyEventsFragment extends EventListFragment {
 
     public MyEventsFragment() {}
 

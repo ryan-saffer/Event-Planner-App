@@ -1,6 +1,5 @@
 package com.example.ryansaffer.eventplanner.Fragments.EventsFragments;
 
-import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
@@ -9,7 +8,7 @@ import com.google.firebase.database.Query;
  * Created by ryansaffer on 20/2/18.
  */
 
-public class AllEventsFragment extends PostListFragment {
+public class AllEventsFragment extends EventListFragment {
 
     public AllEventsFragment() {}
 

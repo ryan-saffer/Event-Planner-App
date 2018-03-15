@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/drawer_home"
+        android:icon="@drawable/ic_account_circle_black_24dp"
+        android:title="Home" />
+    <item android:id="@+id/drawer_friends"
+        android:icon="@drawable/ic_mode_edit_white_24dp"
+        android:title="Friends" />
+</menu>
