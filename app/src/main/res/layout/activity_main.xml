@@ -27,6 +27,6 @@
         android:layout_alignParentRight="true"
         android:layout_margin="16dp"
         android:clickable="true"
-        app:backgroundTint="@android:color/holo_orange_dark"
+        app:backgroundTint="@color/colorAccent"
         app:srcCompat="@drawable/ic_mode_edit_white_24dp" />
 </RelativeLayout>

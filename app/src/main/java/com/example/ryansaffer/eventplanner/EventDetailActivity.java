@@ -19,7 +19,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.UpcomingEventsFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.AcceptedUsersFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.DeclinedUsersFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.InvitedUsersFragment;
@@ -32,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -151,7 +149,7 @@ public class EventDetailActivity extends AppCompatActivity {
         // determine if the user owns this event, is so inflate the menu
         if (mUid.equals(mAuthorID)) {
             MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.event_details_menu, menu);
+            inflater.inflate(R.menu.menu_event_details, menu);
             return true;
         } else {
             return false;
@@ -161,12 +159,12 @@ public class EventDetailActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.edit_event:
+            case R.id.action_edit_event:
                 Intent intent = new Intent(EventDetailActivity.this, CreateEventActivity.class);
                 intent.putExtra(EXTRA_EVENT_KEY, mEventKey);
                 startActivity(intent);
                 return true;
-            case R.id.delete_event:
+            case R.id.action_delete_event:
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.confirm_deletion_title)
                         .setMessage(R.string.confirm_deletion_message)

@@ -86,10 +86,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
                 // find out the logged in users response
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                String rawResponse = responses.get(uid);
-                Event.Response response = Event.Response.valueOf(rawResponse);
+                if (responses != null) {
+                    String rawResponse = responses.get(uid);
+                    Event.Response response = Event.Response.valueOf(rawResponse);
 
-                setText(attendingCount, notAttendingCount, pendingCount, response, event);
+                    setText(attendingCount, notAttendingCount, pendingCount, response, event);
+                }
             }
 
             @Override

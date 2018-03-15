@@ -34,6 +34,7 @@
     <!-- Menus -->
     <string name="menu_event_details_edit">Edit</string>
     <string name="menu_event_details_delete">Delete</string>
+    <string name="menu_main_activity_logout">Log out</string>
 
 
 </resources>

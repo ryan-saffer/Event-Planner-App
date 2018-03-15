@@ -7,10 +7,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
-import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.PastEventsFragment;
-import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.UpcomingEventsFragment;
+import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.MyEventsFragment;
+import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.AllEventsFragment;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,12 +30,12 @@ public class MainActivity extends AppCompatActivity {
         // Create the adapter that will return a fragment for each section
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
-                    new UpcomingEventsFragment(),
-                    new PastEventsFragment(),
+                    new AllEventsFragment(),
+                    new MyEventsFragment(),
             };
             private final String[] mFragmentNames = new String[] {
-                    "Upcoming",
-                    "Past"
+                    "All Events",
+                    "My Events"
             };
 
             @Override
@@ -65,5 +68,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: options menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_logout:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, SignInActivity.class));
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

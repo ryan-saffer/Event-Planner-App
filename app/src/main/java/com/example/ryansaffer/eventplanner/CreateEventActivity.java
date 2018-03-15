@@ -52,7 +52,7 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
     Button mSelectDateTimeBtn;
     FloatingActionButton mSubmitButton;
 
-    private static String mTitle, mBody;
+    private String mTitle, mBody;
 
     private int mYear, mMonth, mDay, mHour, mMinute;
 
@@ -212,14 +212,11 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
     }
 
     public void writeNewEvent(String userId, String username, String title, String body, HashMap<String, Event.Response> userResponses) {
-        Event event;
         if (!mEditingEvent) {
             // create new event at "events/@event-id
             mEventKey = mDatabase.child("events").push().getKey();
-            event = mEvent;
-        } else {
-            event = new Event(userId,username,title,body,userResponses,this.mDay,this.mMonth,this.mYear,this.mHour,this.mMinute);
         }
+        Event event = new Event(userId,username,title,body,userResponses,this.mDay,this.mMonth,this.mYear,this.mHour,this.mMinute);
         Map<String, Object> eventValues = event.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/events/" + mEventKey, eventValues);
