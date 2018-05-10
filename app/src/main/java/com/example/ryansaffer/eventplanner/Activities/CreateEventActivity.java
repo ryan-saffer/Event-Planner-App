@@ -1,4 +1,4 @@
-package com.example.ryansaffer.eventplanner;
+package com.example.ryansaffer.eventplanner.Activities;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.ryansaffer.eventplanner.PickerFragments.DatePickerFragment;
 import com.example.ryansaffer.eventplanner.PickerFragments.TimePickerFragment;
+import com.example.ryansaffer.eventplanner.R;
 import com.example.ryansaffer.eventplanner.models.Event;
 import com.example.ryansaffer.eventplanner.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -134,18 +135,21 @@ public class CreateEventActivity extends AppCompatActivity implements DatePicker
         // Title required
         if (TextUtils.isEmpty(mTitle)) {
             mTitleField.setError(REQUIRED);
+            Toast.makeText(this, getResources().getString(R.string.title_field_empty), Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Details required
         if (TextUtils.isEmpty(mBody)) {
             mDetailField.setError(REQUIRED);
+            Toast.makeText(this, getResources().getString(R.string.detail_field_empty), Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Date and Time required
         if (TextUtils.isEmpty(dateTime)) {
             mSelectDateTimeBtn.setError(REQUIRED);
+            Toast.makeText(this, getResources().getString(R.string.date_time_field_empty), Toast.LENGTH_SHORT).show();
             return;
         }
 

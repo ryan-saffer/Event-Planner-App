@@ -32,7 +32,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public TextView authorView;
     public TextView titleView;
     public TextView detailView;
-    public TextView dateTimeView;
+    public TextView dateView;
+    public TextView timeView;
     public TextView attendingCountView;
     public TextView rejectedCountView;
     public TextView awaitingResponseCountView;
@@ -43,10 +44,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         context = itemView.getContext();
 
-        authorView = itemView.findViewById(R.id.include_author_email);
-        titleView = itemView.findViewById(R.id.post_title);
-        detailView = itemView.findViewById(R.id.post_details);
-        dateTimeView = itemView.findViewById(R.id.post_date_time);
+        authorView = itemView.findViewById(R.id.tv_author);
+        titleView = itemView.findViewById(R.id.tv_event_title);
+        detailView = itemView.findViewById(R.id.tv_event_details);
+        dateView = itemView.findViewById(R.id.tv_date);
+        timeView = itemView.findViewById(R.id.tv_time);
         attendingCountView = itemView.findViewById(R.id.post_accepted_num);
         rejectedCountView = itemView.findViewById(R.id.post_rejected_num);
         awaitingResponseCountView = itemView.findViewById(R.id.post_awaiting_response_num);
@@ -103,31 +105,33 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     private void setText(long attendingCount, long notAttendingCount, long pendingCount, Event.Response response, Event event) {
 
-        SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMM yyyy 'at' hh:mm a");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
         Calendar cal = Calendar.getInstance();
         cal.set(event.year,event.month,event.day,event.hour,event.minute);
 
         authorView.setText(event.author);
         titleView.setText(event.title);
         detailView.setText(event.details);
-        dateTimeView.setText(format.format(cal.getTime()));
-        attendingCountView.setText(String.valueOf(attendingCount));
-        rejectedCountView.setText(String.valueOf(notAttendingCount));
-        awaitingResponseCountView.setText(String.valueOf(pendingCount));
+        dateView.setText(dateFormat.format(cal.getTime()));
+        timeView.setText(timeFormat.format(cal.getTime()));
+//        attendingCountView.setText(String.valueOf(attendingCount));
+//        rejectedCountView.setText(String.valueOf(notAttendingCount));
+//        awaitingResponseCountView.setText(String.valueOf(pendingCount));
 
         // set the user response
-        switch(response) {
-            case ATTENDING:
-                responseTextView.setText(context.getResources().getString(R.string.user_response_attending));
-                break;
-            case NOT_ATTENDING:
-                responseTextView.setText(context.getResources().getString(R.string.user_response_rejected));
-                break;
-            case PENDING:
-                responseTextView.setText(context.getResources().getString(R.string.user_response_pending));
-                break;
-            default:
-                break;
-        }
+//        switch(response) {
+//            case ATTENDING:
+//                responseTextView.setText(context.getResources().getString(R.string.user_response_attending));
+//                break;
+//            case NOT_ATTENDING:
+//                responseTextView.setText(context.getResources().getString(R.string.user_response_rejected));
+//                break;
+//            case PENDING:
+//                responseTextView.setText(context.getResources().getString(R.string.user_response_pending));
+//                break;
+//            default:
+//                break;
+//        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.ryansaffer.eventplanner;
+package com.example.ryansaffer.eventplanner.Activities;
 
 import android.support.v4.app.FragmentManager;
 import android.support.annotation.NonNull;
@@ -14,6 +14,7 @@ import android.view.MenuItem;
 
 import com.example.ryansaffer.eventplanner.Fragments.FriendsFragment;
 import com.example.ryansaffer.eventplanner.Fragments.HomeFragment;
+import com.example.ryansaffer.eventplanner.R;
 
 public class MainActivity extends AppCompatActivity
         implements  NavigationView.OnNavigationItemSelectedListener {
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         // Set up the Toolbar (since we are using a DrawerLayout)
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_fragment_home);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);

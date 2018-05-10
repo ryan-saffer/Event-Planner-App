@@ -4,10 +4,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
-import com.example.ryansaffer.eventplanner.CreateEventActivity;
+import com.example.ryansaffer.eventplanner.Activities.CreateEventActivity;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class DatePickerFragment extends DialogFragment {
 

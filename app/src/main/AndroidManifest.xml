@@ -9,18 +9,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".EventDetailActivity" />
+        <activity android:name=".Activities.EventDetailActivity"
+            android:label="@string/event_detail_action_bar_label"
+            android:parentActivityName=".Activities.MainActivity" />
         <activity
-            android:name=".SignInActivity">
-        </activity>
-        <activity android:name=".CreateEventActivity"/>
-        <activity android:name=".Fragments.FriendsFragment" />
-        <activity android:name=".MainActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:name=".Activities.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".Activities.CreateEventActivity"/>
+        <activity android:name=".Activities.MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
     </application>
 

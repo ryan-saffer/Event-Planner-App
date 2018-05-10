@@ -6,7 +6,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 
-import com.example.ryansaffer.eventplanner.CreateEventActivity;
+import com.example.ryansaffer.eventplanner.Activities.CreateEventActivity;
 
 import java.util.Calendar;
 

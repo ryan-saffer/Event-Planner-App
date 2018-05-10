@@ -1,10 +1,11 @@
-package com.example.ryansaffer.eventplanner;
+package com.example.ryansaffer.eventplanner.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.AcceptedUsersFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.DeclinedUsersFragment;
 import com.example.ryansaffer.eventplanner.Fragments.UserFragments.InvitedUsersFragment;
+import com.example.ryansaffer.eventplanner.R;
 import com.example.ryansaffer.eventplanner.models.Event;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -74,6 +76,9 @@ public class EventDetailActivity extends AppCompatActivity {
         if (mAuthorID == null) {
             throw new IllegalArgumentException("Must pass EXTRA_AUTHOR_ID");
         }
+
+        // Add the Back Arrow to the action bar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // initialise the fragments
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
@@ -177,6 +182,9 @@ public class EventDetailActivity extends AppCompatActivity {
                         })
                         .setNegativeButton(android.R.string.no, null)
                         .show();
+                return true;
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

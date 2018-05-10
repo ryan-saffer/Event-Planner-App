@@ -1,7 +1,10 @@
 package com.example.ryansaffer.eventplanner.Fragments.EventsFragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,12 +13,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.animation.AlphaAnimation;
 
 import com.example.ryansaffer.eventplanner.R;
 import com.example.ryansaffer.eventplanner.ViewHolder.PostViewHolder;
-import com.example.ryansaffer.eventplanner.EventDetailActivity;
+import com.example.ryansaffer.eventplanner.Activities.EventDetailActivity;
 import com.example.ryansaffer.eventplanner.models.Event;
 
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -98,10 +99,13 @@ public abstract class EventListFragment extends Fragment implements SwipeRefresh
                     @Override
                     public void onClick(View view) {
                         // Launch EventDetailActivity
+                        Activity activity = getActivity();
                         Intent intent = new Intent(getActivity(), EventDetailActivity.class);
                         intent.putExtra(EventDetailActivity.EXTRA_EVENT_KEY, eventKey);
                         intent.putExtra(EventDetailActivity.EXTRA_AUTHOR_ID, model.uid);
-                        startActivity(intent);
+                        Bundle options = ActivityOptionsCompat.makeScaleUpAnimation(
+                                view, 0, 0, view.getWidth(), view.getHeight()).toBundle();
+                        ActivityCompat.startActivity(activity, intent, options);
                     }
                 });
                 holder.bindToEvent(eventKey, model);
@@ -110,7 +114,7 @@ public abstract class EventListFragment extends Fragment implements SwipeRefresh
             @Override
             public PostViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                return new PostViewHolder(inflater.inflate(R.layout.item_post, parent, false));
+                return new PostViewHolder(inflater.inflate(R.layout.new_item_post, parent, false));
             }
 
             @Override

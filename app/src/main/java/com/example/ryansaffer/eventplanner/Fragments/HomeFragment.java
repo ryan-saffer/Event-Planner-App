@@ -15,11 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.ryansaffer.eventplanner.CreateEventActivity;
+import com.example.ryansaffer.eventplanner.Activities.CreateEventActivity;
 import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.MyEventsFragment;
 import com.example.ryansaffer.eventplanner.Fragments.EventsFragments.AllEventsFragment;
 import com.example.ryansaffer.eventplanner.R;
-import com.example.ryansaffer.eventplanner.SignInActivity;
+import com.example.ryansaffer.eventplanner.Activities.SignInActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeFragment extends Fragment {

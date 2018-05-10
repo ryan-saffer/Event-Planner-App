@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#418aff</color>
-    <color name="colorPrimaryDark">#253ded</color>
-    <color name="colorAccent">#a4010f</color>
+    <color name="colorPrimary">#455a64</color>
+    <color name="colorPrimaryLight">#718792</color>
+    <color name="colorPrimaryDark">#1c313a</color>
+    <color name="secondary">#009688</color>
+    <color name="secondaryLight">#52c7b8</color>
+    <color name="secondaryDark">#00675b</color>
+
+    <color name="eventBackgroundBlue">#80CBC4</color>
+    <color name="card_divider">#EEEEEE</color>
 </resources>
